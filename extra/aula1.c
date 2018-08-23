@@ -11,6 +11,7 @@ slide 14:
 // https://www.opengl.org/resources/libraries/glut/spec3/spec3.html
 #include <GL/gl.h>
 #include <GL/glut.h>
+#include <stdio.h>
 
 // g++ aula1.c -o aula1 -lGL -lGLU -lglut
 
