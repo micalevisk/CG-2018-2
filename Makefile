@@ -5,10 +5,10 @@
 FILENAME := $(basename $(FILE))
 
 # REALPREFIX = $(realpath $(PREFIX))
-LDLIBS := -lm -lstdc++
+LDLIBS := -lglut -lGLU -lGL -lm
 
 $(FILENAME):
-	$(CXX) $@.c -o $@.exe -lGL -lGLU -lglut
+	$(CXX) $@.c -o $@.exe $(LDLIBS)
 
 run:
 	./$(FILENAME).exe
