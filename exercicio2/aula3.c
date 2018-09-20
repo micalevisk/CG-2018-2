@@ -1,5 +1,5 @@
 /*
-Exercício 3:
+Exercício 2:
 praticaCG032018.pptx
 
 ----- INSTRUÇÕES DE USO -----
