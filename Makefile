@@ -8,7 +8,7 @@ FILENAME := $(basename $(FILE))
 LDLIBS := -lglut -lGLU -lGL -lm
 
 $(FILENAME):
-	$(CXX) $@.c -o $@.exe $(LDLIBS)
+	$(CXX) $@.c -o $@.exe $(LDLIBS) -D DEBUG=true
 
 run:
 	./$(FILENAME).exe
