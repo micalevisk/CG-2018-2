@@ -3,12 +3,13 @@
 # ROOT_DIR :=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
 FILENAME := $(basename $(FILE))
+ext := $(suffix $(FILE))
 
 # REALPREFIX = $(realpath $(PREFIX))
 LDLIBS := -lglut -lGLU -lGL -lm
 
 $(FILENAME):
-	$(CXX) $@.c -o $@.exe $(LDLIBS) -D DEBUG=true
+	$(CXX) $@$(ext) -o $@.exe $(LDLIBS) -D DEBUG=true
 
 run:
 	./$(FILENAME).exe
