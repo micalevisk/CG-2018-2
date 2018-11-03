@@ -7,6 +7,8 @@ Exercício 4:
 
 Usar o botão esquerdo do mouse para escolher os 3 pontos de controle -> irá gerar a parábola;
 Pressionar o botão esquerdo do mouse sobre um dos pontos e arrastá-lo para redesenhar a parábola.
+botão direito do mouse - limpar pontos.
+ESC - fechar o programa.
 */
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -18,36 +20,122 @@ Pressionar o botão esquerdo do mouse sobre um dos pontos e arrastá-lo para red
 #include <GL/glut.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 #include <stdbool.h>
 
-#define MOUSE_SCROLL_UP 3
-#define MOUSE_SCROLL_DOWN 4
+#define WINDOW_HEIGHT 500
+#define WINDOW_WIDTH  500
+
+#define QTD_PONTOS_CONTROLE 3
+
+#define X_b(x0, x1, x2, t) ( x0 * pow(1 - t, 2.0) + x1 * 2 * t * (1 - t) + x2 * pow(t, 2) )
+#define Y_b(y0, y1, y2, t) ( y0 * pow(1 - t, 2.0) + y1 * 2 * t * (1 - t) + y2 * pow(t, 2) )
+
+/*
+|x0|y0|  -- b0
+|x1|y1|  -- b1
+|x2|y2|  -- b2
+*/
+GLfloat pontosControle[QTD_PONTOS_CONTROLE][2]; // guarda as coordenadas dos 3 pontos de controle, um ponto por linha da matriz
+unsigned PCCorrente; // índice pra linha da matriz acima; indica o ponto de controle corrente; intervalo [0;2]
 
 
+inline GLfloat X(unsigned b) { return pontosControle[b][0]; }
+inline GLfloat Y(unsigned b) { return pontosControle[b][1]; }
 
-void display()
-{
-  glClear(GL_COLOR_BUFFER_BIT); // clear buffers to preset values
-  //      ^ Indicates the buffers currently enabled for color writing
+void zerarPontosControle(void) {
+  PCCorrente = 0;
 
-  // primitivas:
-  // GL_POINTS     //individual points
-  // GL_LINES      //pairs of vertices used to draw segments
-  // GL_TRIANGLES  //triple of vertices used to draw triangles
-  // GL_QUADS      //quandruples of vertices used to draw quadrilaterals
-  // GL_POLYGON    //boundary of a polygon
-  glBegin(GL_POLYGON);
-  //--- commands ---
-  glColor3f(1.0, 1.0, 0.0);
+  pontosControle[0][0] = 0;
+  pontosControle[0][1] = 0;
 
-  glVertex2f(-0.5, -0.5);
-  glVertex2f(-0.5, 0.5);
-  glVertex2f(0.5, 0.5);
-  glVertex2f(0.5, -0.5);
+  pontosControle[1][0] = 0;
+  pontosControle[1][1] = 0;
+
+  pontosControle[2][0] = 0;
+  pontosControle[2][1] = 0;
+}
+
+
+void desenharPontoDeControle(unsigned b) {
+  glPointSize(5);
+
+  glBegin(GL_POINTS);
+  glColor3f(b+0.8/2, 0.3*b, 0.6*b);
+  glVertex2f( X(b), Y(b) );
   glEnd();
 
+  glFlush();
+}
+
+
+void atualizarPlotPonto(int x, int y) {
+  // transformando as coordenadas da janela
+  float cx = ((float)(2.0f * x) / (float) WINDOW_WIDTH)  - 1.0f;
+  float cy = ((float)(2.0f * y) / (float) WINDOW_HEIGHT) - 1.0f;
+  cy *= -1.0f; // normalizando
+
+  pontosControle[PCCorrente % QTD_PONTOS_CONTROLE][0] = cx; // atualizar a coordenada x_b
+  pontosControle[PCCorrente % QTD_PONTOS_CONTROLE][1] = cy; // atualizar a coordenada y_b
+  printf("[_]> (%.2f,%.2f)\n", cx, cy);
+
+  glutPostRedisplay();
+}
+
+
+void gerenciarCliqueMouse(int button, int state, int x, int y) {
+  if (state != GLUT_DOWN) return;
+
+  if (button == GLUT_LEFT_BUTTON) {
+    if (PCCorrente < QTD_PONTOS_CONTROLE) {
+      printf("[mouse]> (%d,%d)\n", x,y);
+      atualizarPlotPonto(x, y);
+      // desenharPontoDeControle(PCCorrente);
+      PCCorrente++;
+    }
+  } else if (button == GLUT_RIGHT_BUTTON) {
+    zerarPontosControle();
+    glPopMatrix();
+    glutPostRedisplay();
+  }
+}
+
+void gerenciarMovimentoMouse(int x, int y) {
+  // TODO: identificar se algum PC foi selecionar, se foi, atualizá-lo para a coordenada movida
+  /*
+  printf("b0(%.2f,%.2f)\n", X(0), Y(0));
+  printf("b1(%.2f,%.2f)\n", X(1), Y(1));
+  printf("b2(%.2f,%.2f)\n", X(2), Y(2));
+  */
+  atualizarPlotPonto(x, y);
+}
+
+void gerenciarTeclado(unsigned char key, int x, int y) {
+  switch (key) {
+    case 27:// ESC para fechar
+      exit(1);
+  }
+}
+
+
+void init(void) {
+  zerarPontosControle();
+  glClearColor(1, 1, 1, 0);
+
+  // glMatrixMode(GL_PROJECTION);
+  // gluOrtho2D(-1.0, 1.0, -1.0, 1.0);
+
+  // glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+  // glViewport(0, 0, 100, 200);
+}
+
+void display(void) {
+  glClear(GL_COLOR_BUFFER_BIT);
+
+  #pragma region cruz
   glBegin(GL_LINES);
-  glColor3f(1.0f, 0.0f, 0.0f);
+  glColor3f(1.0f, .0f, .0f);
 
   glVertex2f(-1, 0);
   glVertex2f(1, 0);
@@ -55,46 +143,61 @@ void display()
   glVertex2f(0, -1);
   glVertex2f(0, 1);
   glEnd();
+  #pragma endregion
 
-  glFlush(); //forces execution before the gathering is complete
-}
+  glColor3f(0, 0, 0);
 
+  if (PCCorrente < 1) glFlush();
 
-void gerenciaMouse(int button, int state, int x, int y) {
-  if (button == GLUT_LEFT_BUTTON) {
+  if (PCCorrente < QTD_PONTOS_CONTROLE) { // plot os N-1 pontos de controle
+    glPointSize(5);
 
+    glBegin(GL_POINTS);
+    for (unsigned b = 0; b < PCCorrente; ++b) {
+      glColor3f(b+0.8/2, 0.3*b, 0.6*b);
+      glVertex2f( X(b), Y(b) );
+      printf("[gl]> (%.2f,%.2f)\n", X(b), Y(b));
+    }
+    glEnd();
+
+  } else { // plot parábola
+    glPointSize(3);
+    glBegin(GL_POINTS);
+    for (GLfloat t = 0.0f; t <= 1.0f; t += 0.001f) { // variável de parametrização `t` entre 0 e 1
+      GLfloat x = 0;
+      GLfloat y = 0;
+
+      for (unsigned b = 0; b < QTD_PONTOS_CONTROLE; ++b) {
+        x += X_b( X(0), X(1), X(2), t );
+        y += Y_b( Y(0), Y(1), Y(2), t );
+      }
+
+      glVertex2f(x, y);
+    }
+    glEnd();
   }
 
-  glutPostRedisplay();
+  glFlush();
 }
 
-
-void init() {
-  glClearColor(1, 1, 1, 1.0);
-  gluOrtho2D(0.0, 160.0, 4.9, 120.0);
-}
-
-
-
-double randomEntre0e1() {
-  return (double)rand() / (double)RAND_MAX;
-}
 
 int main(int argc, char** argv) {
   glutInit(&argc, argv);
 
   glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-  glutInitWindowPosition(200, 200);
-  glutInitWindowSize(700, 500);
+  glutInitWindowSize(WINDOW_HEIGHT, WINDOW_WIDTH);
 
-  glutCreateWindow("Exercício 4 - Editor de Parábolas");
+  glutCreateWindow("Exercicio 4 - Editor de Parabolas");
 
   init();
 
-  printf("Usar o botão esquerdo do mouse para escolher os 3 pontos de controle\nPressionar o botão esquerdo do mouse sobre um dos pontos e arrastá-lo para redesenhar a parábola\n");
+  printf("Usar o botão esquerdo do mouse para escolher os 3 pontos de controle\n"
+         "Pressionar o botão esquerdo do mouse sobre um dos pontos e arrastá-lo para redesenhar a parábola\n");
 
   glutDisplayFunc(display);
-  glutMouseFunc(gerenciaMouse);
+  glutMouseFunc(gerenciarCliqueMouse); // definir o callback pro mouse para a janela corrente
+  glutMotionFunc(gerenciarMovimentoMouse); // definir o callback pro movimento do mouse
+  glutKeyboardFunc(gerenciarTeclado);
 
   glutMainLoop();
 }
