@@ -10,6 +10,7 @@ LDLIBS := -lglut -lGLU -lGL -lm
 
 $(FILENAME):
 	$(CXX) $@$(ext) -o $@.exe $(LDLIBS) -D DEBUG=true
+	$(MAKE) run
 
 run:
 	./$(FILENAME).exe
