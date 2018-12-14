@@ -56,7 +56,7 @@ void zerarPontosControle(void) {
   pontosControle[2][1] = 0;
 }
 
-
+/*
 void desenharPontoDeControle(unsigned b) {
   glPointSize(5);
 
@@ -67,7 +67,7 @@ void desenharPontoDeControle(unsigned b) {
 
   glFlush();
 }
-
+*/
 
 void atualizarPlotPonto(int x, int y) {
   // transformando as coordenadas da janela
@@ -77,7 +77,7 @@ void atualizarPlotPonto(int x, int y) {
 
   pontosControle[PCCorrente % QTD_PONTOS_CONTROLE][0] = cx; // atualizar a coordenada x_b
   pontosControle[PCCorrente % QTD_PONTOS_CONTROLE][1] = cy; // atualizar a coordenada y_b
-  printf("[_]> (%.2f,%.2f)\n", cx, cy);
+  // printf("[_]> (%.2f,%.2f)\n", cx, cy);
 
   glutPostRedisplay();
 }
@@ -88,7 +88,7 @@ void gerenciarCliqueMouse(int button, int state, int x, int y) {
 
   if (button == GLUT_LEFT_BUTTON) {
     if (PCCorrente < QTD_PONTOS_CONTROLE) {
-      printf("[mouse]> (%d,%d)\n", x,y);
+      // printf("[mouse]> (%d,%d)\n", x,y);
       atualizarPlotPonto(x, y);
       // desenharPontoDeControle(PCCorrente);
       PCCorrente++;
@@ -102,11 +102,14 @@ void gerenciarCliqueMouse(int button, int state, int x, int y) {
 
 void gerenciarMovimentoMouse(int x, int y) {
   // TODO: identificar se algum PC foi selecionar, se foi, atualizá-lo para a coordenada movida
-  /*
+
+  float cx = ((float)(2.0f * x) / (float) WINDOW_WIDTH)  - 1.0f;
+  float cy = ((float)(2.0f * y) / (float) WINDOW_HEIGHT) - 1.0f;
+  printf("~ (%.2f,%.2f) \n", cx, cy);
+
   printf("b0(%.2f,%.2f)\n", X(0), Y(0));
   printf("b1(%.2f,%.2f)\n", X(1), Y(1));
   printf("b2(%.2f,%.2f)\n", X(2), Y(2));
-  */
   atualizarPlotPonto(x, y);
 }
 
@@ -133,6 +136,7 @@ void init(void) {
 void display(void) {
   glClear(GL_COLOR_BUFFER_BIT);
 
+  /*
   #pragma region cruz
   glBegin(GL_LINES);
   glColor3f(1.0f, .0f, .0f);
@@ -144,11 +148,13 @@ void display(void) {
   glVertex2f(0, 1);
   glEnd();
   #pragma endregion
+  */
 
   glColor3f(0, 0, 0);
 
   if (PCCorrente < 1) glFlush();
 
+  /*
   if (PCCorrente < QTD_PONTOS_CONTROLE) { // plot os N-1 pontos de controle
     glPointSize(5);
 
@@ -174,6 +180,26 @@ void display(void) {
 
       glVertex2f(x, y);
     }
+    glEnd();
+  }
+  */
+
+
+  glPointSize(8);
+  glBegin(GL_POINTS);
+  for (unsigned b = 0; b < PCCorrente; ++b) {
+    glColor3f(b+0.8/2, 0.3*b, 0.6*b);
+    glVertex2f( X(b), Y(b) );
+    printf("[gl]> (%.2f,%.2f)\n", X(b), Y(b));
+  }
+  glEnd();
+
+  if (PCCorrente >= QTD_PONTOS_CONTROLE) {
+    glColor3f(.0f, .0f, .0f);
+    glBegin(GL_TRIANGLES);
+    glVertex2f( X(0), Y(0) );
+    glVertex2f( X(1), Y(1) );
+    glVertex2f( X(2), Y(2) );
     glEnd();
   }
 
