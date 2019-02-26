@@ -1,3 +1,4 @@
+// vide: https://javascript.info/bezier-curve
 /*
 Exercício 4:
 
@@ -154,37 +155,7 @@ void display(void) {
 
   if (PCCorrente < 1) glFlush();
 
-  /*
-  if (PCCorrente < QTD_PONTOS_CONTROLE) { // plot os N-1 pontos de controle
-    glPointSize(5);
-
-    glBegin(GL_POINTS);
-    for (unsigned b = 0; b < PCCorrente; ++b) {
-      glColor3f(b+0.8/2, 0.3*b, 0.6*b);
-      glVertex2f( X(b), Y(b) );
-      printf("[gl]> (%.2f,%.2f)\n", X(b), Y(b));
-    }
-    glEnd();
-
-  } else { // plot parábola
-    glPointSize(3);
-    glBegin(GL_POINTS);
-    for (GLfloat t = 0.0f; t <= 1.0f; t += 0.001f) { // variável de parametrização `t` entre 0 e 1
-      GLfloat x = 0;
-      GLfloat y = 0;
-
-      for (unsigned b = 0; b < QTD_PONTOS_CONTROLE; ++b) {
-        x += X_b( X(0), X(1), X(2), t );
-        y += Y_b( Y(0), Y(1), Y(2), t );
-      }
-
-      glVertex2f(x, y);
-    }
-    glEnd();
-  }
-  */
-
-
+  /* 1. Draw control points */
   glPointSize(8);
   glBegin(GL_POINTS);
   for (unsigned b = 0; b < PCCorrente; ++b) {
@@ -195,11 +166,29 @@ void display(void) {
   glEnd();
 
   if (PCCorrente >= QTD_PONTOS_CONTROLE) {
-    glColor3f(.0f, .0f, .0f);
-    glBegin(GL_TRIANGLES);
-    glVertex2f( X(0), Y(0) );
-    glVertex2f( X(1), Y(1) );
-    glVertex2f( X(2), Y(2) );
+    /* 2. Builds segments between control points 1->2->3 */
+    glColor3f(.5098f, .3686f, .1569f);
+    glLineWidth(3);
+    glBegin(GL_LINE_STRIP);
+      glVertex2f( X(0), Y(0) );
+      glVertex2f( X(1), Y(1) );
+    glEnd();
+
+    glBegin(GL_LINE_STRIP);
+      glVertex2f( X(1), Y(1) );
+      glVertex2f( X(2), Y(2) );
+    glEnd();
+
+    /* 3. The parameter t moves from 0 to 1 using 0.001 as step */
+    glColor3f(1, .0f, .0f);
+    glPointSize(3);
+    glBegin(GL_POINTS);
+    for (GLfloat t = 0.0f, step = 0.001f; t <= 1.0f; t += step) { // variável de parametrização `t` entre 0 e 1
+      GLfloat x = X_b( X(0), X(1), X(2), t );
+      GLfloat y = Y_b( Y(0), Y(1), Y(2), t );
+
+      glVertex2f(x, y);
+    }
     glEnd();
   }
 
