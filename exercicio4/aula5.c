@@ -76,6 +76,9 @@ void atualizarPlotPonto(int x, int y) {
   float cy = ((float)(2.0f * y) / (float) WINDOW_HEIGHT) - 1.0f;
   cy *= -1.0f; // normalizando
 
+  // FIXME: `PCCorrente` deve estar de acordo com o ponto "selecionado"
+  // http://antongerdelan.net/opengl/raycasting.html
+  // https://www.bfilipek.com/2012/06/select-mouse-opengl.html
   pontosControle[PCCorrente % QTD_PONTOS_CONTROLE][0] = cx; // atualizar a coordenada x_b
   pontosControle[PCCorrente % QTD_PONTOS_CONTROLE][1] = cy; // atualizar a coordenada y_b
   // printf("[_]> (%.2f,%.2f)\n", cx, cy);
@@ -106,7 +109,7 @@ void gerenciarMovimentoMouse(int x, int y) {
 
   float cx = ((float)(2.0f * x) / (float) WINDOW_WIDTH)  - 1.0f;
   float cy = ((float)(2.0f * y) / (float) WINDOW_HEIGHT) - 1.0f;
-  printf("~ (%.2f,%.2f) \n", cx, cy);
+  printf("\n\n~ (%.2f,%.2f) \n", cx, cy);
 
   printf("b0(%.2f,%.2f)\n", X(0), Y(0));
   printf("b1(%.2f,%.2f)\n", X(1), Y(1));
@@ -161,7 +164,6 @@ void display(void) {
   for (unsigned b = 0; b < PCCorrente; ++b) {
     glColor3f(b+0.8/2, 0.3*b, 0.6*b);
     glVertex2f( X(b), Y(b) );
-    printf("[gl]> (%.2f,%.2f)\n", X(b), Y(b));
   }
   glEnd();
 
